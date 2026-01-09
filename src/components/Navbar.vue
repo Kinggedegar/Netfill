@@ -1,325 +1,172 @@
 <template>
-  <header
-    class="fixed top-0 left-0 w-full z-50 transition-all duration-500 border-b border-transparent"
-    :class="headerClasses"
+  <header 
+    class="fixed top-0 w-full z-40 transition-colors duration-300"
+    :class="isScrolled ? 'bg-[#141414] shadow-md' : 'bg-gradient-to-b from-black/80 to-transparent'"
   >
-    <div class="max-w-[1920px] mx-auto px-4 md:px-8 h-16 md:h-[72px] flex items-center justify-between">
+    <div class="px-4 md:px-12 h-[68px] flex items-center justify-between">
       
-      <!-- ================= LEFT: Logo & Mobile Toggle ================= -->
-      <div class="flex items-center gap-4 lg:gap-8">
-        <!-- Mobile Hamburger (Visible < lg) -->
-        <button
-          @click="openMenu"
-          class="lg:hidden p-2 -ml-2 text-gray-300 hover:text-white rounded-full hover:bg-white/10 transition active:scale-95"
-          aria-label="Open Menu"
-        >
-          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
-          </svg>
-        </button>
-
-        <!-- Logo -->
-        <router-link to="/" class="flex items-center gap-1 group relative z-10" @click="closeMenu">
-          <div class="bg-[#F5C518] text-black font-extrabold text-[10px] px-1.5 py-0.5 rounded-[3px] mt-1 group-hover:scale-110 transition-transform duration-300 shadow-[0_0_10px_rgba(245,197,24,0.4)]">
-            PRO
-          </div>
-          <h1 class="text-white text-2xl md:text-3xl font-black tracking-tighter cursor-pointer">
-            Net<span class="text-[#F5C518]">Fill</span>
-          </h1>
+      <!-- LEFT: Logo & Nav -->
+      <div class="flex items-center gap-8">
+        <router-link to="/" class="text-3xl font-black text-red-600 tracking-tighter cursor-pointer hover:scale-105 transition">
+          NETFILL
         </router-link>
 
-        <!-- Desktop Navigation Links (Visible >= lg) -->
-        <nav class="hidden lg:flex items-center gap-6 xl:gap-8 ml-4">
-          <router-link 
-            v-for="link in navLinks" 
-            :key="link.path" 
-            :to="link.path"
-            class="relative text-sm font-medium text-gray-300 hover:text-white transition-colors py-2"
-            active-class="!text-white font-bold"
-          >
-            {{ link.name }}
-            <span v-if="isActive(link.path)" class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-[#F5C518] rounded-full shadow-[0_0_8px_#F5C518]"></span>
-          </router-link>
+        <nav class="hidden lg:flex items-center gap-5 text-sm font-medium">
+          <router-link to="/" active-class="text-white font-bold" class="text-gray-300 hover:text-white transition">Home</router-link>
+          <router-link to="/tv-shows" active-class="text-white font-bold" class="text-gray-300 hover:text-white transition">TV Shows</router-link>
+          <router-link to="/movies" active-class="text-white font-bold" class="text-gray-300 hover:text-white transition">Movies</router-link>
+          <router-link to="/my-list" active-class="text-white font-bold" class="text-gray-300 hover:text-white transition">My List</router-link>
         </nav>
       </div>
 
-      <!-- ================= CENTER/RIGHT: Search & Actions ================= -->
-      <div class="flex items-center gap-2 md:gap-5">
+      <!-- RIGHT: Search & Profile -->
+      <div class="flex items-center gap-4 text-white">
         
-        <!-- Desktop Search Bar -->
-        <div class="hidden md:block relative group w-64 lg:w-80 transition-all duration-300 focus-within:w-96">
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg class="h-4 w-4 text-gray-400 group-focus-within:text-[#F5C518] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </div>
-          <input
-            v-model="searchQuery"
-            type="text"
-            class="block w-full pl-10 pr-3 py-2 border border-transparent rounded-lg leading-5 bg-[#2A2A2A] text-gray-300 placeholder-gray-500 focus:outline-none focus:bg-[#333] focus:border-[#F5C518]/50 focus:text-white focus:placeholder-gray-400 sm:text-sm transition-all shadow-inner"
-            placeholder="Search movies, TV, actors..."
-            @keydown.enter="handleSearch"
-          />
-          <button 
-            v-if="searchQuery"
-            @click="searchQuery = ''"
-            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-white"
-          >
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        <!-- Search Bar (Desktop) -->
+        <div class="relative flex items-center">
+          <button @click="showSearch = !showSearch" class="p-1 hover:text-gray-300 transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
           </button>
+          
+          <input 
+            v-if="showSearch"
+            v-model="searchQuery"
+            @keyup.enter="performSearch"
+            ref="searchInput"
+            type="text" 
+            placeholder="Titles, people, genres"
+            class="absolute right-8 bg-black/80 border border-white/50 pl-3 pr-4 py-1.5 w-60 rounded text-sm focus:outline-none focus:border-white animate-expand"
+          />
         </div>
 
-        <!-- Mobile Search Toggle -->
-        <button 
-          @click="isMobileSearchOpen = !isMobileSearchOpen"
-          class="md:hidden p-2 text-gray-300 hover:text-white rounded-full hover:bg-white/10"
-        >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-        </button>
-
-        <!-- VIP Button (Desktop) -->
-        <button class="hidden sm:flex items-center gap-2 bg-[#F5C518] hover:bg-[#d4a910] text-black px-4 py-1.5 rounded-full font-bold text-xs transition shadow-lg shadow-yellow-500/20 transform hover:scale-105">
-          <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm0 3.516L20.297 19H3.703L12 5.516z"/></svg>
-          VIP
-        </button>
-
-        <!-- AUTH SECTION (Desktop) -->
-        
-        <!-- Case 1: Not Logged In -->
-        <router-link 
-          v-if="!isLoggedIn" 
-          to="/login"
-          class="hidden md:block bg-[#333] hover:bg-white text-white hover:text-black px-5 py-2 rounded-full font-bold text-sm transition"
-        >
-          Sign In
-        </router-link>
-
-        <!-- Case 2: Logged In (Avatar + Dropdown) -->
-        <div v-else class="relative group cursor-pointer">
-          <div class="w-8 h-8 md:w-9 md:h-9 rounded-full overflow-hidden border border-gray-600 group-hover:border-[#F5C518] transition-all ring-2 ring-transparent group-hover:ring-white/20">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png" class="w-full h-full object-cover" alt="Profile" />
+        <!-- Auth / Profile -->
+        <div v-if="isLoggedIn" class="relative group">
+          <div class="flex items-center gap-2 cursor-pointer">
+            <!-- DYNAMIC AVATAR IMAGE -->
+            <img :src="userAvatar" class="w-8 h-8 rounded object-cover border border-transparent group-hover:border-white transition" />
+            <svg class="w-4 h-4 transition-transform group-hover:rotate-180" fill="currentColor" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
           </div>
-          <!-- Dropdown Arrow -->
-          <div class="absolute -bottom-1 -right-1 bg-black rounded-full p-0.5 border border-gray-700">
-            <svg class="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-          </div>
+          
+          <!-- Dropdown -->
+          <div class="absolute right-0 top-full mt-2 w-48 bg-black border border-gray-700 rounded shadow-xl py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 origin-top-right">
+            
+            <div class="px-4 py-2 border-b border-gray-700 text-xs text-gray-400">
+              Hi, <span class="text-white font-bold">{{ userName }}</span>
+            </div>
 
-          <!-- Dropdown Menu -->
-          <div class="absolute right-0 top-full mt-4 w-48 bg-[#1D1D1D] border border-gray-700 rounded-lg shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-right z-50 overflow-hidden">
-            <router-link to="/contact" class="block px-4 py-3 text-sm text-gray-300 hover:bg-[#2A2A2A] hover:text-[#F5C518]">
-              Help Center
+            <router-link to="/profile" class="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-gray-800 transition">
+              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+              Edit Profile
             </router-link>
-            <router-link to="/my-list" class="block px-4 py-3 text-sm text-gray-300 hover:bg-[#2A2A2A] hover:text-[#F5C518]">
-              My Watchlist
-            </router-link>
-            <div class="border-t border-gray-700"></div>
-            <button @click="handleSignOut" class="w-full text-left px-4 py-3 text-sm text-gray-300 hover:bg-[#2A2A2A] hover:text-white">
-              Sign Out
+
+            <router-link to="/my-list" class="block px-4 py-2.5 text-sm hover:bg-gray-800">My Watchlist</router-link>
+            <router-link to="/continue-watching" class="block px-4 py-2.5 text-sm hover:bg-gray-800">Continue Watching</router-link>
+            
+            <button @click="handleLogout" class="block w-full text-left px-4 py-2.5 text-sm hover:bg-gray-800 border-t border-gray-700 mt-2">
+              Sign out
             </button>
           </div>
         </div>
 
+        <router-link v-else to="/login" class="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded font-semibold text-sm transition">
+          Sign In
+        </router-link>
+
+        <!-- Mobile Menu Toggle -->
+        <button @click="mobileMenuOpen = true" class="lg:hidden ml-2">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
       </div>
     </div>
 
-    <!-- ================= MOBILE SEARCH OVERLAY ================= -->
-    <transition
-      enter-active-class="transition-all duration-300 ease-out"
-      enter-from-class="-translate-y-4 opacity-0"
-      enter-to-class="translate-y-0 opacity-100"
-      leave-active-class="transition-all duration-200 ease-in"
-      leave-from-class="translate-y-0 opacity-100"
-      leave-to-class="-translate-y-4 opacity-0"
-    >
-      <div v-if="isMobileSearchOpen" class="md:hidden absolute top-16 left-0 w-full bg-[#1D1D1D] border-b border-gray-700 p-4 shadow-xl z-40">
-        <div class="relative">
-          <input
-            v-model="searchQuery"
-            ref="mobileInput"
-            type="text"
-            class="w-full bg-[#2A2A2A] text-white rounded-lg pl-4 pr-10 py-3 focus:ring-1 focus:ring-[#F5C518] focus:outline-none"
-            placeholder="Search titles..."
-            @keydown.enter="handleSearch"
-          />
-          <button @click="handleSearch" class="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-[#F5C518]">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-          </button>
-        </div>
+    <!-- Mobile Menu Overlay -->
+    <div v-if="mobileMenuOpen" class="fixed inset-0 z-50 bg-black/95 flex flex-col items-center justify-center space-y-8 animate-fade-in">
+      <button @click="mobileMenuOpen = false" class="absolute top-6 right-6 p-2">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      
+      <!-- Mobile Profile Info -->
+      <div v-if="isLoggedIn" class="flex flex-col items-center mb-4">
+        <img :src="userAvatar" class="w-16 h-16 rounded-full border-2 border-white mb-2 object-cover" />
+        <span class="text-xl font-bold">{{ userName }}</span>
+        <router-link to="/profile" @click="mobileMenuOpen = false" class="text-sm text-gray-400 mt-1 underline">Edit Profile</router-link>
       </div>
-    </transition>
 
-    <!-- ================= MOBILE MENU SIDEBAR (TELEPORTED) ================= -->
-    <teleport to="body">
-      <transition
-        enter-active-class="transition-opacity duration-300 linear"
-        enter-from-class="opacity-0"
-        enter-to-class="opacity-100"
-        leave-active-class="transition-opacity duration-300 linear"
-        leave-from-class="opacity-100"
-        leave-to-class="opacity-0"
-      >
-        <div v-if="isMenuOpen" class="fixed inset-0 z-[9999]" @click="closeMenu">
-          
-          <!-- Backdrop -->
-          <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
-
-          <!-- Sidebar -->
-          <div 
-            class="absolute left-0 top-0 bottom-0 w-[280px] bg-[#121212] shadow-2xl flex flex-col transform transition-transform duration-300 ease-out border-r border-gray-800"
-            :class="isMenuOpen ? 'translate-x-0' : '-translate-x-full'"
-            @click.stop
-          >
-            <!-- Sidebar Header: Dynamic User State -->
-            <div class="p-6 border-b border-gray-800 flex items-center justify-between bg-[#1D1D1D]">
-               <div class="flex items-center gap-3">
-                 <div class="w-10 h-10 rounded-full overflow-hidden border border-[#F5C518] bg-gray-800">
-                   <img v-if="isLoggedIn" src="https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png" class="w-full h-full object-cover"/>
-                   <div v-else class="w-full h-full flex items-center justify-center text-[#F5C518]">
-                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                   </div>
-                 </div>
-                 <div>
-                   <p class="text-white font-bold text-sm">{{ isLoggedIn ? 'Guest User' : 'Not Logged In' }}</p>
-                   <p v-if="isLoggedIn" class="text-[#F5C518] text-xs">Free Plan</p>
-                   <router-link v-else to="/login" @click="closeMenu" class="text-[#F5C518] text-xs hover:underline">Tap to Sign In</router-link>
-                 </div>
-               </div>
-               <button @click="closeMenu" class="text-gray-400 hover:text-white transition">
-                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-               </button>
-            </div>
-
-            <!-- Sidebar Links -->
-            <nav class="flex-1 overflow-y-auto py-4">
-              <ul class="space-y-1 px-3">
-                <li v-for="link in navLinks" :key="link.path">
-                  <router-link
-                    :to="link.path"
-                    @click="closeMenu"
-                    class="flex items-center gap-4 px-4 py-3.5 rounded-lg text-gray-400 hover:bg-[#2A2A2A] hover:text-white transition-all group"
-                    active-class="bg-[#2A2A2A] text-white !font-bold"
-                  >
-                    <span class="w-1 h-5 rounded-full bg-gray-700 group-hover:bg-[#F5C518] transition-colors" :class="{ '!bg-[#F5C518]': isActive(link.path) }"></span>
-                    {{ link.name }}
-                  </router-link>
-                </li>
-              </ul>
-              
-              <div class="my-4 border-t border-gray-800 mx-6"></div>
-              
-              <div class="px-6 text-sm text-gray-500 font-medium space-y-4">
-                <router-link to="/contact" @click="closeMenu" class="block hover:text-white">Contact & Support</router-link>
-                <a href="#" class="block hover:text-white">Settings</a>
-                
-                <!-- Dynamic Sign Out / Sign In -->
-                <button v-if="isLoggedIn" @click="handleSignOut" class="block hover:text-white w-full text-left">Sign Out</button>
-                <router-link v-else to="/login" @click="closeMenu" class="block text-[#F5C518] hover:text-white">Sign In</router-link>
-              </div>
-            </nav>
-
-            <!-- Sidebar Footer -->
-            <div class="p-4 bg-[#1D1D1D] border-t border-gray-800">
-              <button class="w-full bg-[#F5C518] hover:bg-[#d4a910] text-black font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition">
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm0 3.516L20.297 19H3.703L12 5.516z"/></svg>
-                Upgrade to VIP
-              </button>
-            </div>
-          </div>
-        </div>
-      </transition>
-    </teleport>
+      <router-link @click="mobileMenuOpen = false" to="/" class="text-2xl font-bold text-gray-300 hover:text-white">Home</router-link>
+      <router-link @click="mobileMenuOpen = false" to="/tv-shows" class="text-2xl font-bold text-gray-300 hover:text-white">TV Shows</router-link>
+      <router-link @click="mobileMenuOpen = false" to="/movies" class="text-2xl font-bold text-gray-300 hover:text-white">Movies</router-link>
+      <router-link @click="mobileMenuOpen = false" to="/my-list" class="text-2xl font-bold text-gray-300 hover:text-white">My List</router-link>
+      
+      <button v-if="isLoggedIn" @click="handleLogout" class="text-xl font-bold text-red-500 mt-8">Sign Out</button>
+      <router-link v-else @click="mobileMenuOpen = false" to="/login" class="text-xl font-bold text-red-500 mt-8">Sign In</router-link>
+    </div>
   </header>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
 const route = useRoute()
-
-// ================= STATE =================
 const isScrolled = ref(false)
-const isMenuOpen = ref(false)
-const isMobileSearchOpen = ref(false)
+const showSearch = ref(false)
 const searchQuery = ref('')
-const mobileInput = ref(null)
+const searchInput = ref(null)
+const mobileMenuOpen = ref(false)
 
-// Simulation: Set to 'false' to see the Guest/Sign In view
-const isLoggedIn = ref(true)
+// User State
+const isLoggedIn = ref(false)
+const userName = ref('User')
+const userAvatar = ref('https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png')
 
-const navLinks = [
-  { name: 'Home', path: '/' },
-  { name: 'Movies', path: '/movies' },
-  { name: 'TV Shows', path: '/tv-shows' },
-  { name: 'New & Popular', path: '/new-popular' },
-  { name: 'My List', path: '/my-list' },
-]
-
-// ================= COMPUTED =================
-const headerClasses = computed(() => {
-  return isScrolled.value
-    ? 'bg-[#1D1D1D]/95 backdrop-blur-xl shadow-lg shadow-black/50 py-0'
-    : 'bg-gradient-to-b from-[#121212] via-[#121212]/80 to-transparent py-2'
-})
-
-const isActive = (path) => route.path === path
-
-// ================= METHODS =================
-const openMenu = () => {
-  isMenuOpen.value = true
-  document.body.style.overflow = 'hidden'
-}
-
-const closeMenu = () => {
-  isMenuOpen.value = false
-  document.body.style.overflow = ''
-}
-
-const handleSearch = () => {
-  if (searchQuery.value.trim()) {
-    router.push({ path: '/search', query: { q: searchQuery.value } })
-    isMobileSearchOpen.value = false
+const loadUserData = () => {
+  isLoggedIn.value = localStorage.getItem('isLoggedIn') === 'true'
+  if (isLoggedIn.value) {
+    userName.value = localStorage.getItem('userName') || 'User'
+    userAvatar.value = localStorage.getItem('userAvatar') || 'https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png'
   }
 }
 
-const handleSignOut = () => {
-  // 1. Logic to clear token/state would go here
+const handleScroll = () => {
+  isScrolled.value = window.scrollY > 30
+}
+
+const performSearch = () => {
+  if (searchQuery.value.trim()) {
+    router.push({ path: '/search', query: { q: searchQuery.value } })
+    showSearch.value = false
+  }
+}
+
+const handleLogout = () => {
+  localStorage.removeItem('isLoggedIn')
+  // We keep the username/avatar in storage for next login "remember me" feel, or clear it if strict privacy needed
   isLoggedIn.value = false
-  closeMenu()
-  // 2. Redirect to Login
+  mobileMenuOpen.value = false
   router.push('/login')
 }
 
-// ================= WATCHERS & LIFECYCLE =================
-const handleScroll = () => {
-  requestAnimationFrame(() => {
-    isScrolled.value = window.scrollY > 10
-  })
-}
-
-watch(isMobileSearchOpen, (isOpen) => {
-  if (isOpen) {
-    nextTick(() => mobileInput.value?.focus())
-  }
+// Watch for route changes to refresh user data (in case Profile was updated)
+watch(() => route.path, () => {
+  loadUserData()
 })
 
-let debounceTimer = null
-watch(searchQuery, (newVal) => {
-  clearTimeout(debounceTimer)
-  if (newVal.trim().length > 2) {
-    debounceTimer = setTimeout(() => {
-      router.replace({ path: '/search', query: { q: newVal } })
-    }, 600)
-  }
+watch(showSearch, (val) => {
+  if (val) nextTick(() => searchInput.value?.focus())
 })
 
-onMounted(() => window.addEventListener('scroll', handleScroll))
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll)
+  loadUserData()
+})
+
 onUnmounted(() => window.removeEventListener('scroll', handleScroll))
 </script>
 
 <style scoped>
-header {
-  -webkit-font-smoothing: antialiased;
-}
+.animate-expand { animation: expand 0.2s ease-out; transform-origin: right; }
+@keyframes expand { from { transform: scaleX(0); opacity: 0; } to { transform: scaleX(1); opacity: 1; } }
+.animate-fade-in { animation: fadeIn 0.2s ease-out; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 </style>

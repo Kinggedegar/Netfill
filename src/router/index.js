@@ -1,69 +1,104 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
-  // 1. Core Pages
-  { 
-    path: '/', 
-    name: 'home', 
-    component: () => import('../views/HomeView.vue') 
+  // --- MAIN APP ---
+  {
+    path: '/',
+    name: 'home',
+    component: () => import('@/views/HomeView.vue'),
+    meta: { title: 'Home - NetFill' }
   },
-  { 
-    path: '/search', 
-    name: 'search', 
-    component: () => import('../views/SearchView.vue') 
+  {
+    path: '/movies',
+    name: 'movies',
+    component: () => import('@/views/CategoryView.vue'),
+    meta: { title: 'Movies - NetFill' }
   },
-
-  // 2. Category Pages (Reusing CategoryView)
-  { 
-    path: '/tv-shows', 
-    name: 'tv-shows', 
-    component: () => import('../views/CategoryView.vue') 
+  {
+    path: '/tv-shows',
+    name: 'tv-shows',
+    component: () => import('@/views/CategoryView.vue'),
+    meta: { title: 'TV Shows - NetFill' }
   },
-  { 
-    path: '/movies', 
-    name: 'movies', 
-    component: () => import('../views/CategoryView.vue') 
-  },
-  { 
-    path: '/new-popular', 
-    name: 'new-popular', 
-    component: () => import('../views/CategoryView.vue') 
-  },
-  { 
-    path: '/my-list', 
-    name: 'my-list', 
-    component: () => import('../views/CategoryView.vue') 
+  
+  // --- DETAILS ---
+  {
+    path: '/movie/:id',
+    name: 'movie-details',
+    component: () => import('@/views/MovieDetails.vue'),
+    meta: { title: 'Details - NetFill' }
   },
 
-  // 3. Auth & Support Pages (NEW)
-  { 
-    path: '/login', 
-    name: 'login', 
-    component: () => import('../views/SignIn.vue') 
+  // --- USER (Protected) ---
+  {
+    path: '/my-list',
+    name: 'my-list',
+    component: () => import('@/views/WatchlistView.vue'),
+    meta: { requiresAuth: true, title: 'My List' }
   },
-  { 
-    path: '/register', 
-    name: 'register', 
-    component: () => import('../views/SignUp.vue') 
+  {
+    path: '/continue-watching',
+    name: 'continue-watching',
+    component: () => import('@/views/ContinueWatching.vue'),
+    meta: { requiresAuth: true, title: 'History' }
   },
-  { 
-    path: '/contact', 
-    name: 'contact', 
-    component: () => import('../views/Contact.vue') 
+  // NEW PROFILE ROUTE
+  {
+    path: '/profile',
+    name: 'profile',
+    component: () => import('@/views/ProfileView.vue'),
+    meta: { requiresAuth: true, title: 'Edit Profile' }
   },
-];
+
+  // --- AUTH (No Navbar/Footer) ---
+  {
+    path: '/login',
+    name: 'login',
+    component: () => import('@/views/SignIn.vue'),
+    meta: { guest: true, hideNavbar: true, hideFooter: true, title: 'Login' }
+  },
+  {
+    path: '/register',
+    name: 'register',
+    component: () => import('@/views/SignUp.vue'),
+    meta: { guest: true, hideNavbar: true, hideFooter: true, title: 'Sign Up' }
+  },
+  
+  // --- SEARCH ---
+  {
+    path: '/search',
+    name: 'search',
+    component: () => import('@/views/SearchView.vue'),
+    meta: { title: 'Search' }
+  },
+
+  // --- 404 ---
+  {
+    path: '/:pathMatch(.*)*',
+    component: () => import('@/views/NotFound.vue'),
+    meta: { hideNavbar: true, hideFooter: true }
+  }
+]
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
-  // Professional Touch: Scroll to top on every page navigation
   scrollBehavior(to, from, savedPosition) {
-    if (savedPosition) {
-      return savedPosition;
-    } else {
-      return { top: 0 };
-    }
+    return savedPosition || { top: 0, behavior: 'smooth' }
+  }
+})
+
+router.beforeEach((to, from, next) => {
+  document.title = to.meta.title || 'NetFill';
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+  if (to.meta.requiresAuth && !isLoggedIn) {
+    next({ name: 'login', query: { redirect: to.fullPath } });
+  } else if (to.meta.guest && isLoggedIn) {
+    next({ name: 'home' });
+  } else {
+    next();
   }
 });
 
-export default router;
+export default router

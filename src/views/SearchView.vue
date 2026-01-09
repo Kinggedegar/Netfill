@@ -1,81 +1,100 @@
 <template>
-  <div class="min-h-screen bg-[#121212] text-white pt-20 md:pt-24 px-4 md:px-8 lg:px-12">
-    <!-- Loading State -->
-    <div v-if="loading" class="flex flex-col items-center justify-center py-32">
-      <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-[#F5C518] mb-4"></div>
-      <p class="text-gray-400 font-medium">Searching MovieBox...</p>
+  <div class="min-h-screen bg-[#141414] text-white pt-24 px-4 md:px-12 pb-12 animate-fade-in">
+    
+    <!-- Loading -->
+    <div v-if="loading" class="flex justify-center py-32">
+       <div class="animate-spin h-10 w-10 border-4 border-red-600 border-t-transparent rounded-full"></div>
     </div>
 
     <!-- Results -->
     <div v-else>
-      <div class="mb-8 border-b border-gray-800 pb-4">
-        <h1 class="text-2xl md:text-3xl font-bold">
-          Results for <span class="text-[#F5C518]">"{{ searchQuery }}"</span>
+      <div class="mb-6">
+        <h1 class="text-2xl text-gray-400">
+          Results for: <span class="text-white font-bold">"{{ query }}"</span>
         </h1>
       </div>
 
-      <!-- Results Grid -->
-      <div v-if="results.length" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
-        <MovieCard
-          v-for="movie in results"
-          :key="movie.id"
-          :movie="movie"
-          @select="openModal"
-        />
+      <div v-if="results.length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div v-for="item in results" :key="item.id" 
+          class="group cursor-pointer flex flex-col gap-2"
+          @click="handleClick(item)"
+        >
+          <!-- Image -->
+          <div class="relative aspect-[2/3] bg-gray-800 rounded overflow-hidden">
+            <img 
+              :src="getImage(item)" 
+              class="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+              @error="$event.target.src='https://via.placeholder.com/300x450?text=No+Image'"
+            />
+            
+            <!-- Type Badge -->
+            <div class="absolute top-2 left-2 bg-black/70 backdrop-blur text-[10px] font-bold px-2 py-0.5 rounded uppercase text-gray-300">
+               {{ item.media_type === 'tv' ? 'Series' : item.media_type }}
+            </div>
+
+            <div v-if="item.vote_average" class="absolute top-2 right-2 bg-green-600 text-black text-[10px] font-bold px-1.5 rounded">
+               {{ item.vote_average.toFixed(1) }}
+            </div>
+          </div>
+          
+          <!-- Text -->
+          <div>
+            <h3 class="font-bold text-sm truncate group-hover:text-red-500 transition">
+              {{ item.title || item.name }}
+            </h3>
+            <p class="text-xs text-gray-500">
+              {{ (item.release_date || item.first_air_date || '').split('-')[0] }}
+            </p>
+          </div>
+        </div>
       </div>
 
       <!-- No Results -->
-      <div v-else class="flex flex-col items-center justify-center py-20 text-center">
-        <div class="bg-gray-800/50 p-6 rounded-full mb-4">
-          <svg class="w-12 h-12 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-        </div>
-        <h2 class="text-xl font-bold text-white mb-2">No matches found</h2>
-        <p class="text-gray-400">Try checking your spelling or use different keywords.</p>
+      <div v-else class="text-center py-20">
+        <p class="text-gray-500 text-lg">No matches found for "{{ query }}".</p>
       </div>
     </div>
-
-    <!-- Modal -->
-    <teleport to="body">
-      <MovieModal v-if="selectedMovie" :movie="selectedMovie" @close="selectedMovie = null" />
-    </teleport>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
-import MovieCard from '@/components/MovieCard.vue'
-import MovieModal from '@/components/MovieModal.vue'
+import { ref, computed, watch, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { MovieAPI } from '@/services/api'
 
 const route = useRoute()
+const router = useRouter()
 const results = ref([])
 const loading = ref(false)
-const selectedMovie = ref(null)
 
-const searchQuery = computed(() => route.query.q?.trim() || '')
+const query = computed(() => route.query.q || '')
+
+const getImage = (item) => {
+  // Actors use profile_path, Movies use poster_path
+  const path = item.profile_path || item.poster_path
+  if (!path) return 'https://via.placeholder.com/300x450?text=No+Image'
+  return `https://image.tmdb.org/t/p/w500${path}`
+}
+
+const handleClick = (item) => {
+  if (item.media_type === 'person') return // Optionally add person page later
+  router.push(`/movie/${item.id}`)
+}
 
 const performSearch = async () => {
-  if (!searchQuery.value) return
-  
+  if (!query.value) return
   loading.value = true
   try {
-    const response = await MovieAPI.searchMovies(searchQuery.value)
-    // Handle both direct array or TMDB result object
-    results.value = response.results || response || []
-  } catch (error) {
-    console.error('Search failed:', error)
-    results.value = []
+    const data = await MovieAPI.searchContent(query.value)
+    // Filter out items without images for a cleaner look
+    results.value = (data.results || []).filter(i => i.poster_path || i.profile_path)
+  } catch (e) {
+    console.error(e)
   } finally {
     loading.value = false
   }
 }
 
-const openModal = (movie) => {
-  selectedMovie.value = movie
-}
-
-watch(() => route.query.q, performSearch, { immediate: true })
+watch(query, performSearch)
+onMounted(performSearch)
 </script>
