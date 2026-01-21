@@ -1,77 +1,74 @@
 <template>
-  <div class="min-h-screen bg-[#141414] text-white flex items-center justify-center pt-24 pb-10 px-4 animate-fade-in">
-    <div class="w-full max-w-2xl">
+  <div class="min-h-screen bg-[#141414] text-white pt-24 px-4 flex justify-center animate-fade-in">
+    <div class="w-full max-w-lg">
       
-      <h1 class="text-4xl md:text-5xl font-bold mb-8 border-b border-[#333] pb-4">Edit Profile</h1>
+      <h1 class="text-3xl md:text-4xl font-bold mb-8 text-center border-b border-gray-800 pb-4">
+        Edit Profile
+      </h1>
 
-      <div class="flex flex-col md:flex-row gap-8">
+      <div class="bg-black/40 backdrop-blur-sm p-6 md:p-8 rounded-xl border border-gray-800 shadow-2xl">
         
-        <!-- Left: Current Avatar Preview -->
-        <div class="flex-shrink-0 flex flex-col items-center gap-4">
-          <div class="relative w-32 h-32 md:w-40 md:h-40 rounded overflow-hidden shadow-lg">
-            <img :src="profileData.avatar" class="w-full h-full object-cover" />
-            <div class="absolute inset-0 ring-1 ring-inset ring-white/10"></div>
+        <!-- PHOTO UPLOAD SECTION -->
+        <div class="flex flex-col items-center mb-8">
+          <div class="relative group cursor-pointer w-32 h-32" @click="triggerFileInput">
+            
+            <!-- The Image Display -->
+            <img 
+              :src="previewImage" 
+              class="w-full h-full rounded-md object-cover border-4 border-transparent group-hover:border-red-600 transition duration-300 shadow-lg"
+              alt="Profile Preview"
+            />
+            
+            <!-- Overlay Icon (Appears on Hover) -->
+            <div class="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300 rounded-md">
+              <div class="text-center">
+                <svg class="w-8 h-8 text-white mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                <span class="text-xs font-bold uppercase tracking-wider">Change</span>
+              </div>
+            </div>
           </div>
+          
+          <p class="text-gray-500 text-xs mt-3">JPG, PNG or GIF. Max 5MB.</p>
+          
+          <!-- Hidden File Input -->
+          <input 
+            type="file" 
+            ref="fileInput" 
+            class="hidden" 
+            accept="image/*"
+            @change="handleFileChange"
+          />
         </div>
 
-        <!-- Right: Edit Form -->
-        <div class="flex-1 space-y-6">
-          
-          <!-- Name Input -->
-          <div class="space-y-2">
-            <label class="bg-[#333] text-gray-200 px-4 py-2 text-xs uppercase font-bold tracking-widest block w-full rounded-t">
-              Profile Name
-            </label>
+        <!-- FORM INPUTS -->
+        <div class="space-y-6">
+          <div>
+            <label class="block text-gray-400 text-sm font-bold mb-2">Profile Name</label>
             <input 
-              v-model="profileData.name"
+              v-model="username" 
               type="text" 
-              class="w-full bg-[#141414] border border-gray-600 px-4 py-3 text-white text-lg focus:outline-none focus:border-white transition"
+              placeholder="Enter your name"
+              class="w-full bg-[#333] text-white px-4 py-3 rounded focus:outline-none focus:ring-2 focus:ring-red-600 focus:bg-[#404040] transition"
             />
           </div>
 
-          <!-- Avatar Selection -->
-          <div class="space-y-3">
-            <p class="text-gray-400 text-sm">Choose an Icon:</p>
-            <div class="grid grid-cols-4 sm:grid-cols-5 gap-3">
-              <button 
-                v-for="(icon, index) in avatars" 
-                :key="index"
-                @click="profileData.avatar = icon"
-                class="relative rounded overflow-hidden transition-transform hover:scale-110 border-2 aspect-square group"
-                :class="profileData.avatar === icon ? 'border-white' : 'border-transparent'"
-              >
-                <img :src="icon" class="w-full h-full object-cover" />
-                <div v-if="profileData.avatar === icon" class="absolute inset-0 bg-black/20"></div>
-              </button>
-            </div>
-          </div>
-
-          <!-- Language (Visual Only) -->
-          <div class="space-y-2 pt-4 border-t border-[#333]">
-            <h3 class="text-lg font-medium text-gray-300">Language</h3>
-            <select class="bg-black border border-white/30 text-white px-3 py-1 rounded">
-              <option>English</option>
-              <option>Español</option>
-              <option>Français</option>
-            </select>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="flex items-center gap-4 pt-6 mt-6 border-t border-[#333]">
+          <!-- Buttons -->
+          <div class="flex gap-4 pt-6">
             <button 
               @click="saveProfile"
-              class="bg-white text-black px-8 py-2 font-bold hover:bg-red-600 hover:text-white transition tracking-wide text-lg rounded-sm"
+              class="flex-1 bg-red-600 text-white font-bold py-3 rounded hover:bg-red-700 hover:scale-105 transition transform duration-200 shadow-lg"
             >
-              SAVE
+              Save Changes
             </button>
             <button 
               @click="$router.push('/')"
-              class="border border-gray-500 text-gray-500 px-8 py-2 font-bold hover:border-white hover:text-white transition tracking-wide text-lg rounded-sm"
+              class="flex-1 bg-transparent border border-gray-600 text-gray-300 font-bold py-3 rounded hover:border-white hover:text-white transition duration-200"
             >
-              CANCEL
+              Cancel
             </button>
           </div>
         </div>
+
       </div>
     </div>
   </div>
@@ -82,41 +79,78 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+const fileInput = ref(null)
 
-// Netflix-style Avatar Presets
-const avatars = [
-  'https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png',
-  'https://mir-s3-cdn-cf.behance.net/project_modules/disp/84c20033850498.56ba69ac290ea.png',
-  'https://mir-s3-cdn-cf.behance.net/project_modules/disp/64623a33850498.56ba69ac2a6f7.png',
-  'https://mir-s3-cdn-cf.behance.net/project_modules/disp/bf6e4a33850498.56ba69ac3064f.png',
-  'https://mir-s3-cdn-cf.behance.net/project_modules/disp/e70b1333850498.56ba69ac32e3b.png',
-]
+// Default avatar fallback
+const defaultAvatar = 'https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png'
 
-const profileData = ref({
-  name: 'User',
-  avatar: avatars[0]
-})
+// State
+const username = ref('')
+const previewImage = ref(defaultAvatar)
 
+// Load current data when page opens
 onMounted(() => {
-  // Load current data
-  const storedName = localStorage.getItem('userName')
-  const storedAvatar = localStorage.getItem('userAvatar')
+  username.value = localStorage.getItem('userName') || 'ChillUser'
   
-  if (storedName) profileData.value.name = storedName
-  if (storedAvatar) profileData.value.avatar = storedAvatar
+  // Check if we have a custom photo saved
+  const savedAvatar = localStorage.getItem('userAvatar')
+  if (savedAvatar) {
+    previewImage.value = savedAvatar
+  }
 })
 
+// Trigger the hidden html input when clicking the image
+const triggerFileInput = () => {
+  fileInput.value.click()
+}
+
+// Handle the file selection and convert to Base64 string
+const handleFileChange = (event) => {
+  const file = event.target.files[0]
+  if (file) {
+    // Optional: Check file size (e.g., limit to 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      alert("File is too big! Please choose an image under 2MB.")
+      return
+    }
+
+    // 1. Create a Reader
+    const reader = new FileReader()
+    
+    // 2. Define what happens when reading finishes
+    reader.onload = (e) => {
+      // e.target.result is the Base64 string of the image
+      previewImage.value = e.target.result
+    }
+    
+    // 3. Start reading the file
+    reader.readAsDataURL(file)
+  }
+}
+
+// Save to Local Storage and Notify Header
 const saveProfile = () => {
-  // Save to storage
-  localStorage.setItem('userName', profileData.value.name)
-  localStorage.setItem('userAvatar', profileData.value.avatar)
+  if (!username.value.trim()) {
+    alert("Please enter a name")
+    return
+  }
+
+  localStorage.setItem('userName', username.value)
+  localStorage.setItem('userAvatar', previewImage.value)
   
-  // Force reload to home so Navbar updates
-  window.location.href = '/'
+  // Dispatch custom event so NavBar.vue updates immediately without refresh
+  window.dispatchEvent(new Event('profile-updated'))
+  
+  router.push('/')
 }
 </script>
 
 <style scoped>
-.animate-fade-in { animation: fadeIn 0.4s ease-out; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 </style>
