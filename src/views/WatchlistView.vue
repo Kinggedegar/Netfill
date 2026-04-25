@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-[#141414] text-white pt-24 pb-20 animate-fade-in">
+  <div class="w-full bg-[#141414] text-white pt-24 pb-20 animate-fade-in">
     <!-- Header -->
     <div class="px-4 md:px-12 lg:px-16 mb-8 flex items-end gap-4">
       <h1 class="text-3xl md:text-5xl font-black">My List</h1>

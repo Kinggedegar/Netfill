@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-[#141414] text-white pt-24 px-4 md:px-12 pb-20 animate-fade-in">
+  <div class="w-full bg-[#141414] text-white pt-24 px-4 md:px-12 pb-20 animate-fade-in">
     
     <!-- Page Header -->
     <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 border-b border-gray-800 pb-6 gap-4">

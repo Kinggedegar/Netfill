@@ -1,39 +1,175 @@
 <template>
-  <div class="min-h-screen bg-black relative flex items-center justify-center">
-    <div class="absolute inset-0">
-      <img src="https://assets.nflxext.com/ffe/siteui/vlv3/f841d4c7-10e1-40af-bcae-07a3f8dc141a/f6d7434e-d6de-4185-a6d4-c77a2d08737b/US-en-20220502-popsignuptwoweeks-perspective_alpha_website_medium.jpg" class="w-full h-full object-cover opacity-50" />
-      <div class="absolute inset-0 bg-black/60"></div>
+  <div class="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 relative flex items-center justify-center overflow-hidden">
+    <!-- Animated Background -->
+    <div class="absolute inset-0 overflow-hidden">
+      <div class="absolute -top-40 -right-40 w-80 h-80 bg-red-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+      <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+      <div class="absolute top-1/2 left-1/2 w-80 h-80 bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
     </div>
 
-    <div class="absolute top-0 left-0 p-6 z-20 flex justify-between w-full px-8">
-       <router-link to="/" class="text-4xl font-black text-red-600 tracking-tighter">NETFILL</router-link>
-       <router-link to="/login" class="text-white font-bold hover:underline mt-2">Sign In</router-link>
+    <!-- Header -->
+    <div class="absolute top-0 left-0 right-0 p-6 z-20 flex justify-between items-center">
+      <router-link to="/" class="text-3xl font-bold text-red-600 flex items-center gap-2 hover:scale-105 transition">
+        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M2 4a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V4z"/>
+        </svg>
+        Netfill
+      </router-link>
+      <router-link to="/signin" class="text-white font-semibold hover:text-red-600 transition">
+        Sign In
+      </router-link>
     </div>
 
-    <div class="relative z-10 bg-black/75 p-12 rounded md:w-[450px] w-full mx-4">
-      <h1 class="text-3xl font-bold mb-2">Sign Up</h1>
-      <p class="text-gray-400 mb-6">It only takes a minute.</p>
-      
-      <form @submit.prevent="handleRegister" class="space-y-4">
-        <div class="relative group">
-          <input v-model="name" type="text" required placeholder=" " class="block px-5 pt-6 pb-2 w-full text-white bg-[#333] rounded focus:bg-[#454545] focus:outline-none peer" />
-          <label class="absolute text-gray-400 duration-150 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-5 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3">Full Name</label>
+    <!-- Form Container -->
+    <div class="relative z-10 w-full max-w-md mx-4 px-6">
+      <div class="bg-black/80 backdrop-blur-md border border-gray-800 p-8 rounded-2xl shadow-2xl">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h1 class="text-3xl font-bold mb-2 text-white">Join Netfill</h1>
+            <p class="text-gray-400">Create your account to get started</p>
+          </div>
+          <div class="flex flex-col items-end gap-2">
+            <span class="text-xs font-semibold text-gray-400">Account Type:</span>
+            <div class="flex gap-2">
+              <button 
+                type="button"
+                @click="accountType = 'user'"
+                :class="accountType === 'user' 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'"
+                class="px-3 py-1 rounded text-xs font-semibold transition"
+              >
+                User
+              </button>
+              <button 
+                type="button"
+                @click="accountType = 'admin'"
+                :class="accountType === 'admin' 
+                  ? 'bg-red-600 text-white' 
+                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'"
+                class="px-3 py-1 rounded text-xs font-semibold transition"
+              >
+                Admin
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div class="relative group">
-          <input v-model="email" type="email" required placeholder=" " class="block px-5 pt-6 pb-2 w-full text-white bg-[#333] rounded focus:bg-[#454545] focus:outline-none peer" />
-          <label class="absolute text-gray-400 duration-150 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-5 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3">Email</label>
+        <!-- Type Indicator Banner -->
+        <div v-if="accountType === 'admin'" class="mb-6 p-3 bg-red-600/20 border border-red-600 rounded-lg text-red-200 text-sm flex items-center gap-2">
+          <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M2.166 4.999a11.954 11.954 0 0110.232 12.387c.5.905.852 1.283 1.349 1.606.342.229.694.4 1.053.545.823.281 1.687-.212 1.687-1.12V4.718c0-.909-.864-1.4-1.687-1.12a2.236 2.236 0 00-1.053.545c-.457.323-.81.701-1.349 1.606A11.954 11.954 0 002.166 4.999z" clip-rule="evenodd" />
+          </svg>
+          <span>You are creating an <strong>Administrator</strong> account</span>
         </div>
 
-        <div class="relative group">
-          <input v-model="password" type="password" required minlength="6" placeholder=" " class="block px-5 pt-6 pb-2 w-full text-white bg-[#333] rounded focus:bg-[#454545] focus:outline-none peer" />
-          <label class="absolute text-gray-400 duration-150 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-5 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3">Password</label>
+        <!-- Error Message -->
+        <div v-if="error" class="mb-6 p-4 bg-red-500/20 border border-red-500 rounded-lg text-red-200 text-sm">
+          {{ error }}
         </div>
 
-        <button :disabled="loading" class="w-full bg-red-600 hover:bg-red-700 py-3.5 rounded font-bold mt-8 transition disabled:opacity-50">
-           {{ loading ? 'Creating Account...' : 'Start Membership' }}
-        </button>
-      </form>
+        <!-- Success Message -->
+        <div v-if="success" class="mb-6 p-4 bg-green-500/20 border border-green-500 rounded-lg text-green-200 text-sm">
+          {{ success }}
+        </div>
+
+        <!-- Form -->
+        <form @submit.prevent="handleSignUp" class="space-y-5">
+          <!-- Username Input -->
+          <div class="relative group">
+            <input
+              v-model="username"
+              type="text"
+              required
+              placeholder=" "
+              class="block w-full px-5 pt-6 pb-2 bg-gray-800 text-white rounded-lg border border-gray-700 focus:border-red-600 focus:bg-gray-700 focus:outline-none transition peer"
+            />
+            <label class="absolute text-gray-400 text-sm duration-150 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-5 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3">
+              Username
+            </label>
+          </div>
+
+          <!-- Email Input -->
+          <div class="relative group">
+            <input
+              v-model="email"
+              type="email"
+              required
+              placeholder=" "
+              class="block w-full px-5 pt-6 pb-2 bg-gray-800 text-white rounded-lg border border-gray-700 focus:border-red-600 focus:bg-gray-700 focus:outline-none transition peer"
+            />
+            <label class="absolute text-gray-400 text-sm duration-150 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-5 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3">
+              Email Address
+            </label>
+          </div>
+
+          <!-- Password Input -->
+          <div class="relative group">
+            <input
+              v-model="password"
+              :type="showPassword ? 'text' : 'password'"
+              required
+              minlength="6"
+              placeholder=" "
+              class="block w-full px-5 pt-6 pb-2 bg-gray-800 text-white rounded-lg border border-gray-700 focus:border-red-600 focus:bg-gray-700 focus:outline-none transition peer"
+            />
+            <label class="absolute text-gray-400 text-sm duration-150 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-5 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3">
+              Password (min. 6 characters)
+            </label>
+            <button
+              type="button"
+              @click="showPassword = !showPassword"
+              class="absolute right-4 top-4 text-gray-400 hover:text-white transition"
+            >
+              <svg v-if="!showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+              </svg>
+              <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-4.803m5.596-3.856a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM19.364 5.364l-1.414 1.414M9.172 9.172L7.757 7.757m3.536 9.172l1.414 1.414M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Terms -->
+          <label class="flex items-start gap-3 text-sm text-gray-400">
+            <input
+              type="checkbox"
+              v-model="agreeTerms"
+              class="w-4 h-4 mt-0.5 bg-gray-800 border border-gray-700 rounded cursor-pointer accent-red-600"
+            />
+            <span>I agree to the <a href="#" class="text-red-600 hover:underline">Terms of Service</a> and <a href="#" class="text-red-600 hover:underline">Privacy Policy</a></span>
+          </label>
+
+          <!-- Sign Up Button -->
+          <button
+            :disabled="loading || !agreeTerms"
+            type="submit"
+            class="w-full py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 disabled:from-gray-600 disabled:to-gray-700 text-white font-bold rounded-lg transition duration-300 transform hover:scale-105 disabled:scale-100 mt-8"
+          >
+            <span v-if="!loading">Start Membership</span>
+            <span v-else class="flex items-center justify-center gap-2">
+              <span class="inline-block w-4 h-4 border-2 border-gray-300 border-t-white rounded-full animate-spin"></span>
+              Creating Account...
+            </span>
+          </button>
+        </form>
+
+        <!-- Divider -->
+        <div class="my-6 flex items-center">
+          <div class="flex-grow border-t border-gray-700"></div>
+          <span class="px-4 text-gray-500 text-sm">OR</span>
+          <div class="flex-grow border-t border-gray-700"></div>
+        </div>
+
+        <!-- Sign In Link -->
+        <p class="text-center text-gray-400">
+          Already have an account?
+          <router-link to="/signin" class="text-white font-semibold hover:text-red-600 transition">
+            Sign in
+          </router-link>
+        </p>
+      </div>
     </div>
   </div>
 </template>
@@ -41,23 +177,93 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { AuthAPI } from '@/services/backend-api.js'
 
 const router = useRouter()
-const name = ref('')
+
+const username = ref('')
 const email = ref('')
 const password = ref('')
+const showPassword = ref(false)
+const agreeTerms = ref(false)
 const loading = ref(false)
+const error = ref('')
+const success = ref('')
+const accountType = ref('user')
 
-const handleRegister = () => {
+const handleSignUp = async () => {
+  if (!username.value || !email.value || !password.value) {
+    error.value = 'Please fill in all fields'
+    return
+  }
+
+  if (password.value.length < 6) {
+    error.value = 'Password must be at least 6 characters long'
+    return
+  }
+
+  if (!agreeTerms.value) {
+    error.value = 'You must agree to the terms and conditions'
+    return
+  }
+
   loading.value = true
-  setTimeout(() => {
-    // Save User Data
+  error.value = ''
+  success.value = ''
+
+  try {
+    const response = await AuthAPI.signup(username.value, email.value, password.value)
+
+    success.value = 'Account created successfully! Redirecting...'
+
+    // Store token and user info
+    localStorage.setItem('token', response.token)
+    localStorage.setItem('user', JSON.stringify(response.user))
+    localStorage.setItem('userName', response.user.username)
+    localStorage.setItem('userRole', response.user.role || 'user')
     localStorage.setItem('isLoggedIn', 'true')
-    localStorage.setItem('userEmail', email.value)
-    localStorage.setItem('userName', name.value) // Save the Name
-    localStorage.setItem('userAvatar', 'https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png') // Set Default Avatar
-    
-    router.push('/')
-  }, 1000)
+
+    // Redirect based on role
+    let redirectPath = '/'
+    if (response.user.role === 'admin') {
+      redirectPath = '/admin'
+    }
+
+    // Redirect after a short delay
+    setTimeout(() => {
+      router.push(redirectPath)
+    }, 1500)
+  } catch (err) {
+    error.value = err.message || 'Failed to create account. Please try again.'
+    console.error('Sign up error:', err)
+  } finally {
+    loading.value = false
+  }
 }
 </script>
+
+<style scoped>
+@keyframes blob {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+</style>

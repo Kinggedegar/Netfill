@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-[#121212] text-white pt-24 px-4 md:px-12 pb-12">
+  <div class="w-full bg-[#121212] text-white pt-24 px-4 md:px-12 pb-12">
     <div class="max-w-6xl mx-auto">
       
       <!-- Page Header -->

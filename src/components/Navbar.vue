@@ -23,6 +23,15 @@
           >
             {{ link.name }}
           </router-link>
+          <!-- Admin Dashboard Link -->
+          <router-link 
+            v-if="userRole === 'admin'"
+            to="/admin"
+            active-class="text-red-500 font-bold cursor-default" 
+            class="text-red-400 hover:text-red-200 hover:scale-105 transition-all duration-200 font-bold"
+          >
+            Admin
+          </router-link>
         </nav>
       </div>
 
@@ -76,7 +85,7 @@
                  <img :src="userAvatar" class="w-10 h-10 rounded object-cover" />
                  <div class="overflow-hidden">
                     <p class="text-xs text-gray-400">Signed in as</p>
-                    <p class="text-sm font-bold text-white truncate">{{ userName }}</p>
+                    <p class="text-sm font-bold text-white truncate">{{ userName }}<span v-if="userRole === 'admin'" class="text-xs bg-red-600 text-white px-2 py-0.5 rounded ml-2">Admin</span><span v-else class="text-xs text-gray-400 ml-2">(User)</span></p>
                  </div>
               </div>
 
@@ -98,6 +107,12 @@
                 <router-link to="/continue-watching" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition">
                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                    Continue Watching
+                </router-link>
+
+                <!-- 4. Admin Dashboard (for admins only) -->
+                <router-link v-if="userRole === 'admin'" to="/admin" class="flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:bg-red-900/40 hover:text-red-200 transition border-t border-gray-700 mt-1">
+                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m6 2a2 2 0 110 4m0-4a2 2 0 100 4m-6 2a2 2 0 110 4m0-4a2 2 0 100 4m-6-2a2 2 0 110 4m0-4a2 2 0 100 4" /></svg>
+                   Admin Dashboard
                 </router-link>
               </div>
               
@@ -134,8 +149,8 @@
         <div class="flex flex-col items-center justify-center flex-grow space-y-8 px-6">
           <div v-if="isLoggedIn" class="flex flex-col items-center animate-slide-up">
             <img :src="userAvatar" class="w-24 h-24 rounded-full shadow-2xl border-4 border-red-600 mb-4 object-cover" />
-            <span class="text-2xl font-bold tracking-wide">{{ userName }}</span>
-            <router-link to="/profile" @click="mobileMenuOpen = false" class="text-sm text-gray-400 mt-2 underline hover:text-white">
+            <span class="text-2xl font-bold tracking-wide">{{ userName }}</span>            <span v-if=\"userRole === 'admin'\" class=\"text-xs bg-red-600 text-white px-3 py-1 rounded mt-1\">Admin</span>
+            <span v-else class=\"text-xs text-gray-400 mt-1\">(User)</span>            <router-link to="/profile" @click="mobileMenuOpen = false" class="text-sm text-gray-400 mt-2 underline hover:text-white">
               Change Photo
             </router-link>
           </div>
@@ -148,6 +163,11 @@
             <!-- ADDED CONTINUE WATCHING TO MOBILE TOO -->
             <router-link to="/continue-watching" @click="mobileMenuOpen = false" class="text-gray-400 hover:text-white hover:scale-110 transition duration-300">
               Continue Watching
+            </router-link>
+
+            <!-- Admin Dashboard for admins -->
+            <router-link v-if="userRole === 'admin'" to="/admin" @click="mobileMenuOpen = false" class="text-red-400 hover:text-red-200 hover:scale-110 transition duration-300 font-bold">
+              Admin Dashboard
             </router-link>
           </div>
           
@@ -190,6 +210,7 @@ const navLinks = [
 // User State
 const isLoggedIn = ref(false)
 const userName = ref('Guest')
+const userRole = ref('user')
 const defaultAvatar = 'https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png'
 const userAvatar = ref(defaultAvatar)
 
@@ -197,13 +218,14 @@ const loadUserData = () => {
   isLoggedIn.value = localStorage.getItem('isLoggedIn') === 'true'
   if (isLoggedIn.value) {
     userName.value = localStorage.getItem('userName') || 'ChillUser'
+    userRole.value = localStorage.getItem('userRole') || 'user'
     const customPhoto = localStorage.getItem('userAvatar')
     userAvatar.value = customPhoto || defaultAvatar
   }
 }
 
 const handleStorageChange = (event) => {
-  if (event.key === 'userAvatar' || event.key === 'userName') {
+  if (event.key === 'userAvatar' || event.key === 'userName' || event.key === 'userRole') {
     loadUserData()
   }
 }

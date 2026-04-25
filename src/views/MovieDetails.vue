@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-[#141414] text-white font-sans pb-20">
+  <div class="w-full bg-[#141414] text-white font-sans pb-20">
     
     <!-- LOADING STATE -->
     <div v-if="loading" class="fixed inset-0 flex items-center justify-center bg-[#141414] z-50">

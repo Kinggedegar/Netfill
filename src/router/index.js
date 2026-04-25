@@ -39,8 +39,8 @@ const routes = [
   {
     path: '/continue-watching',
     name: 'continue-watching',
-    component: () => import('@/views/ContinueWatching.vue'),
-    meta: { requiresAuth: true, title: 'History' }
+    component: () => import('@/views/ContinueWatchingView.vue'),
+    meta: { requiresAuth: true, title: 'Continue Watching' }
   },
   // NEW PROFILE ROUTE
   {
@@ -49,21 +49,53 @@ const routes = [
     component: () => import('@/views/ProfileView.vue'),
     meta: { requiresAuth: true, title: 'Edit Profile' }
   },
+  {
+    path: '/settings',
+    name: 'settings',
+    component: () => import('@/views/SettingsView.vue'),
+    meta: { requiresAuth: true, title: 'Settings' }
+  },
+  {
+    path: '/watchlist',
+    name: 'watchlist',
+    component: () => import('@/views/WatchlistView.vue'),
+    meta: { requiresAuth: true, title: 'My Watchlist' }
+  },
 
   // --- AUTH (No Navbar/Footer) ---
+  {
+    path: '/signin',
+    name: 'signin',
+    component: () => import('@/views/SignIn.vue'),
+    meta: { guest: true, hideNavbar: true, hideFooter: true, hideSidebar: true, title: 'Sign In' }
+  },
+  {
+    path: '/signup',
+    name: 'signup',
+    component: () => import('@/views/SignUp.vue'),
+    meta: { guest: true, hideNavbar: true, hideFooter: true, hideSidebar: true, title: 'Sign Up' }
+  },
   {
     path: '/login',
     name: 'login',
     component: () => import('@/views/SignIn.vue'),
-    meta: { guest: true, hideNavbar: true, hideFooter: true, title: 'Login' }
+    meta: { guest: true, hideNavbar: true, hideFooter: true, hideSidebar: true, title: 'Login' }
   },
   {
     path: '/register',
     name: 'register',
     component: () => import('@/views/SignUp.vue'),
-    meta: { guest: true, hideNavbar: true, hideFooter: true, title: 'Sign Up' }
+    meta: { guest: true, hideNavbar: true, hideFooter: true, hideSidebar: true, title: 'Sign Up' }
   },
   
+  // --- ADMIN ---
+  {
+    path: '/admin',
+    name: 'admin',
+    component: () => import('@/views/AdminDashboard.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true, title: 'Admin Dashboard' }
+  },
+
   // --- SEARCH ---
   {
     path: '/search',
@@ -91,9 +123,14 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   document.title = to.meta.title || 'NetFill';
   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const userRole = localStorage.getItem('userRole') || user.role || 'user';
+  const isAdmin = userRole === 'admin';
 
   if (to.meta.requiresAuth && !isLoggedIn) {
     next({ name: 'login', query: { redirect: to.fullPath } });
+  } else if (to.meta.requiresAdmin && !isAdmin) {
+    next({ name: 'home' });
   } else if (to.meta.guest && isLoggedIn) {
     next({ name: 'home' });
   } else {

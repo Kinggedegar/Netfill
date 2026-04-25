@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-[#141414] text-white">
+  <div class="w-full bg-[#141414] text-white">
     
     <!-- 1. Sticky Search Header -->
     <div class="sticky top-0 z-40 bg-[#141414]/90 backdrop-blur-md border-b border-gray-800 transition-all duration-300">
